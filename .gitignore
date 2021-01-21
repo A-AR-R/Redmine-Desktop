@@ -105,3 +105,9 @@ dist
 
 # PYCHARM FILES
 .idea
+
+# PYCHARM FILES
+.idea
+build
+dist
+out

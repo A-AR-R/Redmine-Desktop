@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function WorkHours() {
     const classes = useStyles();
-
     return (
         <Timeline align="left" >
             <TimelineItem>

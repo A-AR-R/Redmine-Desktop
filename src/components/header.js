@@ -75,7 +75,7 @@ const Header = (props) => {
 }
 
 const drawerWidth = 240;
-const headerHeight = 50;
+export const headerHeight = 50;
 
 const headerHeightPx = headerHeight + 'px';
 

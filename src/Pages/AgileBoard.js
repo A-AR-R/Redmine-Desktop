@@ -2,6 +2,7 @@ import React from "react";
 import Board from 'react-trello'
 import "../css/AgileStyle.css";
 import { makeStyles } from "@material-ui/core/styles";
+import { headerHeight } from '../components/header'
 
 const data = {
     lanes: [
@@ -27,16 +28,15 @@ const AgileBoard = () => {
     const classes = useStyles();
     return (
         <div>
-            <Board className={classes.board}  draggable data={data} />
+            <Board className={classes.board} draggable data={data} />
         </div>
     )
 };
 
 const useStyles = makeStyles((theme) => ({
-	board: {
-		height : 'calc(100vh - 50px) !important'
-	}
+    board: {
+        height: `calc(100vh - ${headerHeight}px) !important`
+    }
 }));
-
 
 export default AgileBoard;

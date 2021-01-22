@@ -20,6 +20,9 @@ export const Theme = createMuiTheme({
 		 },
 		 MuiChip:{
 			  color:'primary'
+		 },
+		 MuiButton:{
+			variant:"contained" ,color:"primary"
 		 }
 	},
 });

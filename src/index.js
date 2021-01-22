@@ -7,12 +7,15 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from "@material-ui/core";
 import { HashRouter } from "react-router-dom";
 import { Theme } from './theme'
+
 const Main = () => (
   <MuiThemeProvider theme={Theme}>
     <CssBaseline />
     <HashRouter>
       <React.StrictMode>
-        <App />
+        <div className='App'>
+          <App />
+        </div>
       </React.StrictMode>
     </HashRouter>
   </MuiThemeProvider>

@@ -11,28 +11,29 @@ import { NavLink } from "react-router-dom";
 
 const SideBar = () => {
 	const classes = useStyles();
+
 	return (
 		<React.Fragment>
 			<Divider />
 			<List>
-				<ListItem button component={NavLink} to='/home'  activeClassName={classes.selected} >
+				<ListItem button component={NavLink} to='/Board'  activeClassName={classes.selected} >
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="home" />
+					<ListItemText primary="Board" />
 				</ListItem>
-				<ListItem button component={NavLink} to='/home2' activeClassName={classes.selected}>
+				<ListItem button component={NavLink} to='/Gant' activeClassName={classes.selected}>
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="home2" />
+					<ListItemText primary="Gant" />
 				</ListItem>
 			</List>
 			<Divider />
 			<List>
-				<ListItem button>
+				<ListItem button component={NavLink} to='/WorkHours' activeClassName={classes.selected}>
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="Text 1" />
+					<ListItemText primary="Work Hours" />
 				</ListItem>
 				<ListItem button >
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="Text 2" secondary="sss" />
+					<ListItemText primary="Tasks" secondary="" />
 				</ListItem>
 			</List>
 		</React.Fragment>

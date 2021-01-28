@@ -81,7 +81,8 @@ const headerHeightPx = headerHeight + 'px';
 
 const useStyles = makeStyles((theme) => ({
     root:{
-        display: 'flex'
+        display: 'flex',
+        height:'100%'
     },
     title: {
         display: 'none',
@@ -137,6 +138,7 @@ const useStyles = makeStyles((theme) => ({
     content: {
         flexGrow: 1,
         padding: 0,
+        height: 'calc(100% - 50px)',
         transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

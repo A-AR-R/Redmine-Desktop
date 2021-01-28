@@ -4,6 +4,15 @@ import "../css/AgileStyle.css";
 import isEmpty from "lodash/isEmpty";
 import axios from "axios";
 import mainContext from "../UserContext";
+import { withStyles } from "@material-ui/core/styles";
+import {makeStyles} from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        height: '100%',
+    }
+}));
+
 class AgileBoard extends Component {
     static contextType = mainContext
     eventBus = undefined
@@ -131,8 +140,8 @@ class AgileBoard extends Component {
     render() {
         const {data} = this.state;
         return (
-            <div>
-                {!isEmpty(data) ? <Board data={data} onCardMoveAcrossLanes={this.onCardMoveAcrossLanes}
+            <div className="height100">
+                {!isEmpty(data) ? <Board className="height100" data={data} onCardMoveAcrossLanes={this.onCardMoveAcrossLanes}
                                          eventBusHandle={this.setEventBus} draggable/> : <p>Loading...</p>}
             </div>
         );
@@ -140,3 +149,4 @@ class AgileBoard extends Component {
 }
 
 export default AgileBoard;
+

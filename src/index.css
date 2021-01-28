@@ -11,10 +11,18 @@ body {
   height: 100%;
 }
 
+#root {
+  height: 100%;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 .App {
   text-align: center;
+  height: 100%;
+}
+
+.height100 {
+  height: 100% !important;
 }

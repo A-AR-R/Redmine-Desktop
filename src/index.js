@@ -12,11 +12,11 @@ const Main = () => (
   <MuiThemeProvider theme={Theme}>
     <CssBaseline />
     <HashRouter>
-      <React.StrictMode>
+      <React.Fragment>
         <div className='App'>
           <App />
         </div>
-      </React.StrictMode>
+      </React.Fragment>
     </HashRouter>
   </MuiThemeProvider>
 )

@@ -1,11 +1,11 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import Board from 'react-trello'
 import "../css/AgileStyle.css";
 import isEmpty from "lodash/isEmpty";
 import axios from "axios";
 import mainContext from "../UserContext";
 import { withStyles } from "@material-ui/core/styles";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,7 +34,10 @@ class AgileBoard extends Component {
             load: false
         }
 
+    }
 
+    componentWillUnmount() {
+        this.context.mainState.agileBoard = this.state 
     }
 
     onCardMoveAcrossLanes = (fromLaneId, toLaneId, cardId, index) => {
@@ -43,7 +46,7 @@ class AgileBoard extends Component {
         // 2875b029a6a87c9b3b7f04fd207a9b8386c78172
         axios({
             method: 'put',
-            url: "http://"+this.context.mainState.serverName+"/issues/1.json",
+            url: "http://" + this.context.mainState.serverName + "/issues/1.json",
             data: {
                 "issue": {
                     "status_id": toLaneId,
@@ -58,9 +61,9 @@ class AgileBoard extends Component {
             }
 
         }).then(res => {
-                console.log(res)
+            console.log(res)
 
-            }
+        }
         )
     }
 
@@ -74,7 +77,7 @@ class AgileBoard extends Component {
         var self = this;
         axios({
             method: 'get',
-            url: "http://"+this.context.mainState.serverName+"/issue_statuses.json",
+            url: "http://" + this.context.mainState.serverName + "/issue_statuses.json",
             responseType: 'json',
             dataType: 'json',
             headers: {
@@ -84,21 +87,21 @@ class AgileBoard extends Component {
             }
 
         }).then(res => {
-                console.log(res.data.issue_statuses)
-                var data = {
-                    lanes: []
-                }
-                res.data.issue_statuses.forEach(function (issue_status) {
-                    data.lanes.push({
-                        id: issue_status.id.toString(),
-                        title: issue_status.name,
-                        style: {width: 280},
-                        cards: []
-                    })
-                })
-                this.setState({data});
-                self.getTodos();
+            console.log(res.data.issue_statuses)
+            var data = {
+                lanes: []
             }
+            res.data.issue_statuses.forEach(function (issue_status) {
+                data.lanes.push({
+                    id: issue_status.id.toString(),
+                    title: issue_status.name,
+                    style: { width: 280 },
+                    cards: []
+                })
+            })
+            this.setState({ data });
+            self.getTodos();
+        }
         )
     }
 
@@ -120,29 +123,29 @@ class AgileBoard extends Component {
             }
 
         }).then(res => {
-                res.data.issues.forEach(function (issue) {
-                    self.eventBus.publish({
-                        type: 'ADD_CARD',
-                        laneId: issue.status.id.toString(),
-                        card: {
-                            id: issue.id.toString(),
-                            title: issue.subject,
-                            label: issue.tracker.name,
-                            description: issue.description
-                        }
-                    })
+            res.data.issues.forEach(function (issue) {
+                self.eventBus.publish({
+                    type: 'ADD_CARD',
+                    laneId: issue.status.id.toString(),
+                    card: {
+                        id: issue.id.toString(),
+                        title: issue.subject,
+                        label: issue.tracker.name,
+                        description: issue.description
+                    }
                 })
+            })
 
-            }
+        }
         )
     };
 
     render() {
-        const {data} = this.state;
+        const { data } = this.state;
         return (
             <div className="height100">
                 {!isEmpty(data) ? <Board className="height100" data={data} onCardMoveAcrossLanes={this.onCardMoveAcrossLanes}
-                                         eventBusHandle={this.setEventBus} draggable/> : <p>Loading...</p>}
+                    eventBusHandle={this.setEventBus} draggable /> : <p>Loading...</p>}
             </div>
         );
     }

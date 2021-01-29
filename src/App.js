@@ -5,7 +5,7 @@ import AgileBoard from './Pages/AgileBoard'
 import Gant from './Pages/Gant'
 import WorkHours from "./Pages/WorkHours";
 import Login from './Pages/login'
-import mainContext, { GetCostomSetState, loadState } from './UserContext'
+import mainContext, { GetCostomSetState, loadState, saveState } from './UserContext'
 // export const mainContext = React.createContext();
 
 const App = () => {
@@ -14,13 +14,16 @@ const App = () => {
         serverName: '185.8.172.29:8084',
         token_id: '2875b029a6a87c9b3b7f04fd207a9b8386c78172',
         user_id: null,
-        sideBar: false
+        sideBar: false,
+        agileBoard: {
+            data:null
+        }
     });
 
     const loadMainState = () => {
         const state = loadState();
         console.log(state)
-        if (state !== undefined) setMainState(state)
+        if (state !== undefined) setMainState({...mainState,...state})
     }
     React.useEffect(loadMainState,[])
 

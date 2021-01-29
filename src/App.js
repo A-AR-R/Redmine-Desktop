@@ -12,7 +12,8 @@ const App = () => {
     const [mainState, setMainState] = React.useState({
         isLoggedIn: false,
         serverName: '185.8.172.29:8084',
-        token_id: '2875b029a6a87c9b3b7f04fd207a9b8386c78172'
+        token_id: '2875b029a6a87c9b3b7f04fd207a9b8386c78172',
+        user_id: null
     });
 
     const Main = () => (

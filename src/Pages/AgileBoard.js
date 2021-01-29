@@ -109,7 +109,7 @@ class AgileBoard extends Component {
             method: 'get',
             url: 'http://185.8.172.29:8084/issues.json',
             params: {
-                assigned_to_id: 1
+                assigned_to_id: this.context.mainState.user_id
             },
             responseType: 'json',
             dataType: 'json',

@@ -1,19 +1,20 @@
 import React from 'react';
 
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Badge from "@material-ui/core/Badge";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-
+import { mainContext } from '../UserContext';
 
 const HeaderItems = () => {
 
 	const classes = useStyles();
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const isMenuOpen = Boolean(anchorEl);
+	const { mainState, setMainState } = React.useContext(mainContext);
 
 	const handleProfileMenuOpen = (event) => {
 		setAnchorEl(event.currentTarget);
@@ -24,7 +25,12 @@ const HeaderItems = () => {
 	};
 
 	const menuId = 'redmine-title';
-
+	const logout = () => {
+		setMainState({
+			...mainState,
+			isLoggedIn: false,
+		})
+	}
 
 	const renderMenu = (
 		<Menu
@@ -37,7 +43,7 @@ const HeaderItems = () => {
 			onClose={handleMenuClose}
 		>
 			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-			<MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+			<MenuItem onClick={()=>{handleMenuClose(); logout();}}>Logout</MenuItem>
 		</Menu>
 	);
 

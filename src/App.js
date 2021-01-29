@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from './components/header'
 import { Route, Switch } from "react-router-dom";
 import AgileBoard from './Pages/AgileBoard'
@@ -16,16 +16,20 @@ const App = () => {
         user_id: null,
         sideBar: false,
         agileBoard: {
-            data:null
-        }
+            data: null
+        },
+        inProgress: [],
     });
-
+    const [reload, setReload] = useState(true)
     const loadMainState = () => {
-        const state = loadState();
-        console.log(state)
-        if (state !== undefined) setMainState({...mainState,...state})
+        if (reload) {
+            setReload(false)
+            const state = loadState();
+            console.log(state)
+            if (state !== undefined) setMainState({ ...mainState, ...state })
+        }
     }
-    React.useEffect(loadMainState,[])
+    React.useEffect(loadMainState, [])
 
     const Main = () => (
         <Header>
@@ -38,7 +42,7 @@ const App = () => {
     );
 
     return (
-        <mainContext.Provider value={{ mainState, setMainState: GetCostomSetState(setMainState) }}>
+        <mainContext.Provider value={{ mainState, setMainState: GetCostomSetState(setMainState) ,orginal:setMainState}}>
             {mainState.isLoggedIn ? <Main /> : <Login />}
         </mainContext.Provider>
     )

@@ -36,10 +36,6 @@ class AgileBoard extends Component {
 
     }
 
-    componentWillUnmount() {
-        this.context.mainState.agileBoard = this.state 
-    }
-
     onCardMoveAcrossLanes = (fromLaneId, toLaneId, cardId, index) => {
         console.log(fromLaneId, toLaneId, cardId, index)
         // var self = this;

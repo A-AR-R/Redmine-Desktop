@@ -14,13 +14,21 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import SideBar from './sideBar'
 import HeaderItems from './headerItems'
-
+import { mainContext } from '../UserContext';
 
 const Header = (props) => {
 
     const classes = useStyles();
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const { mainState, setMainState } = React.useContext(mainContext);
+
+    let open = mainState.SideBar;
+    const setOpen = (open) =>{
+        setMainState({
+            ...mainState,
+            SideBar : open
+        })
+    }
 
     return (
         <div className={classes.root}>

@@ -4,10 +4,13 @@ import "../css/AgileStyle.css";
 import isEmpty from "lodash/isEmpty";
 import axios from "axios";
 import mainContext from "../UserContext";
-import {withStyles} from "@material-ui/core/styles";
 import {makeStyles} from "@material-ui/core/styles";
-import EditIcon from '@material-ui/icons/Edit';
-import SaveIcon from '@material-ui/icons/Save';
+import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.bubble.css';
+import ReactMde from "react-mde";
+import "react-mde/lib/styles/css/react-mde-all.css";
+import ReactMarkdown from "react-markdown";
+import * as Showdown from "showdown";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -15,48 +18,46 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 const MyCard = props => {
+    const [selectedTab, setSelectedTab] = React.useState("preview");
     const [state, setState] = useState(props)
-    const { mainState, setMainState } = React.useContext(mainContext);
-    const updateDescription = (e) => {
-        setState({
-            ...state,
-            editing: true
-        });
-    }
-    const updateDescription2 = (e) => {
-        console.log(state.description)
-        setState({
-            ...state,
-            editing: false
-        });
-        axios({
-            method: 'put',
-            url: "http://" + mainState.serverName + "/issues/" + state.id + ".json",
-            data: {
-                "issue": {
-                    "description": state.description,
+    const {mainState, setMainState} = React.useContext(mainContext);
+
+    const converter = new Showdown.Converter({
+        tables: true,
+        simplifiedAutoLink: true,
+        strikethrough: true,
+        tasklists: true
+    });
+
+    const handleTabChange = (tab) => {
+        setSelectedTab(tab)
+        if(tab==='preview'){
+            axios({
+                method: 'put',
+                url: "http://" + mainState.serverName + "/issues/" + state.id + ".json",
+                data: {
+                    "issue": {
+                        "description": state.description,
+                    }
+                },
+                responseType: 'json',
+                dataType: 'json',
+                headers: {
+                    "Access-Control-Allow-Headers": "X-Requested-With",
+                    'X-Redmine-API-Key': mainState.token_id,
+                    'Access-Control-Allow-Origin': '*'
+                }}).then(res => {
+                    console.log(res)
+
                 }
-            },
-            responseType: 'json',
-            dataType: 'json',
-            headers: {
-                "Access-Control-Allow-Headers": "X-Requested-With",
-                'X-Redmine-API-Key': mainState.token_id,
-                'Access-Control-Allow-Origin': '*'
-            }
-
-        }).then(res => {
-                console.log(res)
-
-            }
-        )
-        // props.description=state.value
+            )
+        }
     }
 
-    const handleChange = (e) => {
+    const handleChange = (content) => {
         setState({
             ...state,
-            description: e.target.value
+            description: content
         });
     }
 
@@ -75,22 +76,20 @@ const MyCard = props => {
             <div style={{fontSize: 12, color: '#BD3B36'}}>
                 <div style={{color: '#4C4C4C', fontWeight: 'bold'}}>{props.subTitle}</div>
                 <div style={{padding: '5px 0px'}}><i>{props.body}</i></div>
-                {!state.editing ? (<div style={{
-                    marginTop: 10,
-                    textAlign: 'left',
-                    color: props.cardColor,
-                    fontSize: 15,
-                    fontWeight: 'bold'
-                }}>
-                    {state.description}
-                    <EditIcon style={{float: 'right'}} onClick={((e) => updateDescription(e))}/>
-                </div>) : (
-                    <div>
-                        <textarea value={state.description} onChange={handleChange}></textarea>
-                        <SaveIcon style={{float: 'right'}} onClick={((e) => updateDescription2(e))}/>
-                    </div>
-                )
-                }
+                <ReactMde
+                    value={state.description}
+                    onChange={handleChange}
+                    selectedTab={selectedTab}
+                    onTabChange={handleTabChange}
+                    generateMarkdownPreview={markdown =>
+                        Promise.resolve(converter.makeHtml(markdown))
+                    }
+                    childProps={{
+                        writeButton: {
+                            tabIndex: -1
+                        }
+                    }}
+                />
 
             </div>
         </div>
@@ -228,7 +227,7 @@ class AgileBoard extends Component {
         const {data} = this.state;
         return (
             <div className="height100">
-                {!isEmpty(data) ? <Board className="height100" data={data} components={components}
+                {!isEmpty(data) ? <Board style={{textAlign:'left'}} className="height100" data={data} components={components}
                                          onCardMoveAcrossLanes={this.onCardMoveAcrossLanes}
                                          eventBusHandle={this.setEventBus} draggable/> : <p>Loading...</p>}
             </div>

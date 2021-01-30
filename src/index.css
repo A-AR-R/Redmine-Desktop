@@ -26,3 +26,16 @@ code {
 .height100 {
   height: 100% !important;
 }
+
+.mde-header ul.mde-header-group.hidden {
+  display: none;
+}
+
+.mde-preview {
+  min-height: 20px !important;
+}
+.mde-textarea-wrapper textarea.mde-text {
+  resize: none !important;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+}

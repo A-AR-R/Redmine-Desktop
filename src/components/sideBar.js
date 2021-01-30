@@ -20,13 +20,6 @@ const SideBar = () => {
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
 					<ListItemText primary="Board" />
 				</ListItem>
-				<ListItem button component={NavLink} to='/Gant' activeClassName={classes.selected}>
-					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="Gant" />
-				</ListItem>
-			</List>
-			<Divider />
-			<List>
 				<ListItem button component={NavLink} to='/WorkHours' activeClassName={classes.selected}>
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
 					<ListItemText primary="Work Hours" />

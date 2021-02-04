@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Header from './components/header'
-import { Route, Switch } from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import AgileBoard from './Pages/AgileBoard'
 import Gant from './Pages/Gant'
 import WorkHours from "./Pages/WorkHours";
 import Login from './Pages/login'
-import mainContext, { GetCostomSetState, loadState, saveState } from './UserContext'
-// export const mainContext = React.createContext();
+import Timer from './Timer'
+import mainContext, {GetCostomSetState, loadState, saveState} from './UserContext'
 
 const App = () => {
     const [mainState, setMainState] = React.useState({
@@ -26,24 +26,37 @@ const App = () => {
             setReload(false)
             const state = loadState();
             console.log(state)
-            if (state !== undefined) setMainState({ ...mainState, ...state })
+            if (state !== undefined) setMainState({...mainState, ...state})
         }
     }
+
+    const loadTimer = () => {
+        let timer = new Timer()
+        setInterval(function () {
+            if (timer.isActive()) {
+                console.log("active:" + timer.getActiveTime())
+            }
+            else if (timer.isIdle()) {
+                console.log("idle:" + timer.getActiveTime())
+            }
+        }, 1000)
+    }
     React.useEffect(loadMainState, [])
+    React.useEffect(loadTimer, [])
 
     const Main = () => (
         <Header>
             <Switch>
-                <Route exact path="/Board" component={AgileBoard} />
-                <Route exact path="/Gant" component={Gant} />
-                <Route exact path="/WorkHours" component={WorkHours} />
+                <Route exact path="/Board" component={AgileBoard}/>
+                <Route exact path="/Gant" component={Gant}/>
+                <Route exact path="/WorkHours" component={WorkHours}/>
             </Switch>
         </Header>
     );
 
     return (
-        <mainContext.Provider value={{ mainState, setMainState: GetCostomSetState(setMainState) ,orginal:setMainState}}>
-            {mainState.isLoggedIn ? <Main /> : <Login />}
+        <mainContext.Provider value={{mainState, setMainState: GetCostomSetState(setMainState), orginal: setMainState}}>
+            {mainState.isLoggedIn ? <Main/> : <Login/>}
         </mainContext.Provider>
     )
 }

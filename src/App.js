@@ -6,7 +6,7 @@ import Gant from './Pages/Gant'
 import WorkHours from "./Pages/WorkHours";
 import Login from './Pages/login'
 import Timer from './Timer'
-import mainContext, {GetCostomSetState, loadState, saveState} from './UserContext'
+import mainContext, {GetCustomSetState, loadState, saveState} from './UserContext'
 
 const App = () => {
     const [mainState, setMainState] = React.useState({
@@ -45,17 +45,20 @@ const App = () => {
     React.useEffect(loadTimer, [])
 
     const Main = () => (
-        <Header>
-            <Switch>
-                <Route exact path="/Board" component={AgileBoard}/>
-                <Route exact path="/Gant" component={Gant}/>
-                <Route exact path="/WorkHours" component={WorkHours}/>
-            </Switch>
-        </Header>
+        <div>
+            <Header>
+                <Switch>
+                    <Route exact path="/Board" component={AgileBoard}/>
+                    <Route exact path="/Gant" component={Gant}/>
+                    <Route exact path="/WorkHours" component={WorkHours}/>
+                </Switch>
+            </Header>
+            <Timer/>
+        </div>
     );
 
     return (
-        <mainContext.Provider value={{mainState, setMainState: GetCostomSetState(setMainState), orginal: setMainState}}>
+        <mainContext.Provider value={{mainState, setMainState: GetCustomSetState(setMainState), orginal: setMainState}}>
             {mainState.isLoggedIn ? <Main/> : <Login/>}
         </mainContext.Provider>
     )

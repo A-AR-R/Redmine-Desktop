@@ -18,7 +18,7 @@ const App = () => {
         agileBoard: {
             data: null
         },
-        inProgress: [],
+        issueLogTimes: []
     });
     const [reload, setReload] = useState(true)
     const loadMainState = () => {
@@ -34,10 +34,10 @@ const App = () => {
         let timer = new Timer()
         setInterval(function () {
             if (timer.isActive()) {
-                console.log("active:" + timer.getActiveTime())
+                // console.log("active:" + timer.getActiveTime())
             }
             else if (timer.isIdle()) {
-                console.log("idle:" + timer.getActiveTime())
+                // console.log("idle:" + timer.getActiveTime())
             }
         }, 1000)
     }

@@ -7,29 +7,29 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Timeline from '@material-ui/lab/Timeline';
-import TimelineItem from '@material-ui/lab/TimelineItem';
-import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
-import TimelineConnector from '@material-ui/lab/TimelineConnector';
-import TimelineContent from '@material-ui/lab/TimelineContent';
-import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
-import TimelineDot from '@material-ui/lab/TimelineDot';
-import FastfoodIcon from '@material-ui/icons/Fastfood';
-import LaptopMacIcon from '@material-ui/icons/LaptopMac';
-import HotelIcon from '@material-ui/icons/Hotel';
-import RepeatIcon from '@material-ui/icons/Repeat';
-import Typography from '@material-ui/core/Typography';
 import { mainContext } from '../UserContext';
 import axios from 'axios';
-import { TextField } from '@material-ui/core';
+import { Dialog, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import { Component } from 'react';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContentText from '@material-ui/core/DialogContentText';
 
 const WorkHours = () => {
+    const classes = useStyles();
     const { mainState, setMainState } = React.useContext(mainContext);
-    const [state, setState] = useState([])
-    console.log('ren', state)
+    const { issueLogTimes } = mainState
+    const [issueList, setIssueList] = useState([])
+    const [modal, setModal] = useState({ open: false });
+    const [activities, setActivities] = useState([]);
+
     useEffect(() => {
+        let list;
         axios({
             method: 'get',
             url: 'http://' + mainState.serverName + '/issues.json',
@@ -44,179 +44,280 @@ const WorkHours = () => {
                 'Access-Control-Allow-Origin': '*'
             }
         }).then(res => {
-            console.log(res.data)
-            let list = res.data.issues.map(c => ({ id: c.id, subject: c.subject, status: c.status , estimated_hours:c.estimated_hours }))
-                .filter(c => c.status.id === 2)
-            for (let item of list) {
-                if (mainState.inProgress.some(c => c.id === item.id)) {
-                    item.time = mainState.inProgress.filter(c => c.id === item.id)[0].time
-                } else {
-                    item.time = 0
+            list = res.data.issues.map(c => ({
+                id: c.id,
+                issueSubject: c.subject,
+                status: c.status,
+                estimatedHours: c.estimated_hours,
+                logTime: []
+            })).sort((a, b) => a.status.id - b.status.id);
+        }).then(() => {
+            return axios({
+                method: 'get',
+                url: 'http://' + mainState.serverName + '/time_entries.json',
+                params: {
+                    user_id: mainState.user_id
+                },
+                responseType: 'json',
+                dataType: 'json',
+                headers: {
+                    "Access-Control-Allow-Headers": "X-Requested-With",
+                    'X-Redmine-API-Key': mainState.token_id,
+                    'Access-Control-Allow-Origin': '*'
                 }
+            })
+        }).then(({ data }) => {
+            const newState = list.map(c => ({
+                ...c,
+                logTime: data.time_entries.filter(n => n.issue.id === c.id).map(n => ({
+                    id: n.id,
+                    activity: n.activity.name,
+                    activityId: n.activity.id,
+                    hours: n.hours
+                }))
+            }))
+            for (let issue of newState) {
+                console.log(1, issue.logTime)
+                if (issueLogTimes.some(c => c.id === issue.id)) {
+                    const dirtyLogs = issueLogTimes.filter(c => c.id === issue.id)[0].logTime.filter(c => c.id === -1);
+                    issue.logTime = [...issue.logTime, ...dirtyLogs]
+                }
+                console.log(2, issue.logTime)
             }
-            setState(list)
+            setIssueList(newState)
         })
-    }, [])
 
-    const setTime = (id) => () => {
-        const value = document.querySelector('#filled-helperText' + id).value;
-        const newState = state.filter(c => c.id === id)[0]
-        newState.time = newState.time + parseInt(value);
-        setState([...state])
-        setMainState({
-            ...mainState,
-            inProgress: state
-        })
-    }
-
-    const submit = () => {
-        const data = {
-            'issue_id': state[0].id,
-            'user_id':mainState.user_id,
-            'hours':state[0].time,
-        };
-        console.log(data)
         axios({
-            method: 'post',
-            url: 'http://' +mainState.serverName + '/time_entries.json',
-            data: data,
+            method: 'get',
+            url: 'http://' + mainState.serverName + '/enumerations/time_entry_activities.json',
             responseType: 'json',
             dataType: 'json',
             headers: {
+                "Access-Control-Allow-Headers": "X-Requested-With",
                 'X-Redmine-API-Key': mainState.token_id,
+                'Access-Control-Allow-Origin': '*'
             }
-
-        }).then(res => {
-            console.log('respo', res)
-
+        }).then(({ data }) => {
+            setActivities(data.time_entry_activities.filter(c => c.active))
         })
+    }, [])
+
+    const submit = () => {
+        for (const issue of issueLogTimes) {
+            const dirtyLogs = issue.logTime.filter(c => c.id === -1);
+            for (const log of dirtyLogs) {
+                const formData = new FormData();
+                formData.append('issue_id', issue.id);
+                formData.append('user_id', mainState.user_id);
+                console.warn(log.activityId);
+                formData.append('activity_id', log.activityId);
+                formData.append('time_entry[hours]', log.hours);
+                axios({
+                    method: 'post',
+                    url: 'http://' + mainState.serverName + '/time_entries.json',
+                    data: formData,
+                    responseType: 'json',
+                    dataType: 'json',
+                    headers: {
+                        'X-Redmine-API-Key': mainState.token_id,
+                    }
+                }).then(res => {
+                    console.warn('sucsees')
+                }).catch(res => {
+                    console.error('errorrr')
+                })
+            }
+            issue.logTime = issue.logTime.filter(c => c.id !== -1)
+        }
+        setMainState({ ...mainState })
+    }
+    const reset = () => {
+        issueLogTimes.forEach(c => {
+            c.logTime = c.logTime.filter(c => c.id !== -1)
+        });
+        setMainState({ ...mainState });
     }
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className={classes.container}>
             <TableContainer component={Paper}>
-                <Table aria-label="simple table">
-                    <TableHead>
-                        <TableRow style={{ backgroundColor: '#95a5a5' }}>
-                            <TableCell>Subject</TableCell>
+                <Table aria-label="collapsible table">
+                    <TableHead style={{ backgroundColor: '#87b7ff' }}>
+                        <TableRow>
+                            <TableCell />
+                            <TableCell align="left">Issue Subject</TableCell>
+                            <TableCell align="center">Status</TableCell>
                             <TableCell align="center">Estimated Hours</TableCell>
-                            <TableCell align="center">Time</TableCell>
                             <TableCell align="center">Set Time</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {state.map(c => (
-                            <TableRow key={c.id}>
-                                <TableCell component="th" scope="row">
-                                    {c.subject}
-                                </TableCell>
-                                <TableCell align="center" component="th" scope="row">
-                                    {c.estimated_hours}
-                                </TableCell>
-                                <TableCell align="center" component="th" scope="row">
-                                    {c.time}
-                                </TableCell>
-                                <TableCell align="center">
-                                    <TextField
-                                        defaultValue={'0'}
-                                        id={"filled-helperText" + c.id}
-                                        type="number"
-                                        size='small'
-                                        style={{
-                                            width: '80px'
-                                        }}
-                                    />
-                                    <Button size='small' style={{ margin: '5px' }} onClick={setTime(c.id)}>Set</Button>
-                                </TableCell>
-                            </TableRow>
+                        {issueList.map((row) => (
+                            <Row key={row.id} row={row} setModal={setModal} />
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Button style={{ margin: '20px' }} onClick={submit}>Submit</Button>
+            <div className={classes.buttons}>
+                <Button onClick={reset} >Reset</Button>
+                <Button onClick={submit} >Submit</Button>
+            </div>
+            <SetTimeModal modal={modal} setModal={setModal} activities={activities} issueList={issueList} state={{ mainState, setMainState }} />
+
         </div>
     )
 }
 
-/*
-return (
-    <Timeline align="left" >
-        <TimelineItem>
-            <TimelineOppositeContent>
-                <Typography variant="body2" color="textSecondary">
-                    9:30 am
-                </Typography>
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-                <TimelineDot>
-                    <FastfoodIcon />
-                </TimelineDot>
-                <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-                <Paper elevation={3} className={classes.paper}>
-                    <Typography variant="h6" component="h1">
-                        Eat
-                    </Typography>
-                    <Typography>Because you need strength</Typography>
-                </Paper>
-            </TimelineContent>
-        </TimelineItem>
-        <TimelineItem>
-            <TimelineOppositeContent>
-                <Typography variant="body2" color="textSecondary">
-                    10:00 am
-                </Typography>
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-                <TimelineDot color="primary">
-                    <LaptopMacIcon />
-                </TimelineDot>
-                <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-                <Paper elevation={3} className={classes.paper}>
-                    <Typography variant="h6" component="h1">
-                        Code
-                    </Typography>
-                    <Typography>Because it&apos;s awesome!</Typography>
-                </Paper>
-            </TimelineContent>
-        </TimelineItem>
-        <TimelineItem>
-            <TimelineSeparator>
-                <TimelineDot color="primary" variant="outlined">
-                    <HotelIcon />
-                </TimelineDot>
-                <TimelineConnector className={classes.secondaryTail} />
-            </TimelineSeparator>
-            <TimelineContent>
-                <Paper elevation={3} className={classes.paper}>
-                    <Typography variant="h6" component="h1">
-                        Sleep
-                    </Typography>
-                    <Typography>Because you need rest</Typography>
-                </Paper>
-            </TimelineContent>
-        </TimelineItem>
-        <TimelineItem>
-            <TimelineSeparator>
-                <TimelineDot color="secondary">
-                    <RepeatIcon />
-                </TimelineDot>
-            </TimelineSeparator>
-            <TimelineContent>
-                <Paper elevation={3} className={classes.paper}>
-                    <Typography variant="h6" component="h1">
-                        Repeat
-                    </Typography>
-                    <Typography>Because this is the life you love!</Typography>
-                </Paper>
-            </TimelineContent>
-        </TimelineItem>
 
-    </Timeline>
-);
- */
+const Row = ({ row, setModal }) => {
+    const [open, setOpen] = React.useState(false);
+    const classes = useStyles();
+    return (
+        <React.Fragment>
+            <TableRow className={classes.root} >
+                <TableCell>
+                    <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                </TableCell>
+                <TableCell component="th" scope="row">{row.issueSubject}</TableCell>
+                <TableCell align="center">{row.status.name}</TableCell>
+                <TableCell align="center">{row.estimatedHours}</TableCell>
+                <TableCell align="center">
+                    <Button onClick={() => { setModal({ open: true, issueId: row.id }) }} >Add</Button>
+                </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                    <Collapse in={open} timeout="auto" unmountOnExit>
+                        <Box margin={1}>
+                            <Typography variant="h6" gutterBottom component="div">
+                                Log
+                            </Typography>
+                            <Table size="small" aria-label="purchases">
+                                <TableHead style={{ backgroundColor: '#87b7ff' }}>
+                                    <TableRow>
+                                        <TableCell>Activity</TableCell>
+                                        <TableCell>Time</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {row.logTime.map((c, i) => (
+                                        <TableRow key={i} className={c.id === -1 ? classes.dirtyLog : null} >
+                                            <TableCell component="th" scope="row">
+                                                {c.activity}
+                                            </TableCell>
+                                            <TableCell>{c.hours}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </Box>
+                    </Collapse>
+                </TableCell>
+            </TableRow>
+        </React.Fragment>
+    )
+}
+
+const SetTimeModal = ({ modal, setModal, activities, issueList, state }) => {
+    const { mainState, setMainState } = state
+    const classes = useStyles();
+
+    const [form, setForm] = React.useState({
+        activityId: 0,
+        hour: 0
+    })
+    React.useEffect(() => {
+        setForm({
+            ...form,
+            activityId: activities.length === 0 ? '' : activities[0].id
+        })
+    }, [activities])
+
+    const add = () => {
+        let issue = issueList.filter(c => c.id === modal.issueId)[0]
+        issue.logTime = [{
+            id: -1,
+            activityId: form.activityId,
+            activity: activities.filter(n => n.id === form.activityId)[0].name,
+            hours: Number(form.hour)
+        }, ...issue.logTime]
+        mainState.issueLogTimes = issueList
+        setMainState(mainState)
+        setModal({ open: false })
+    }
+    return (
+        <Dialog open={modal.open} onClose={() => { setModal({ open: false }) }}>
+            <DialogTitle> Add log time</DialogTitle >
+            <DialogContent >
+                <div className={classes.setTime}>
+                    <TextField
+                        className={classes.formControl}
+                        style={{
+                            width: '80px'
+                        }}
+                        label="Hours"
+                        value={form.hour}
+                        onChange={(event) => { setForm({ ...form, hour: event.target.value }); }}
+                    />
+                    <FormControl variant="outlined" className={classes.formControl}>
+                        <InputLabel id="demo-simple-select-outlined-label">Activity</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-outlined-label"
+                            id="demo-simple-select-outlined"
+                            label="Age"
+                            value={form.activityId}
+                            onChange={(event) => { setForm({ ...form, activityId: event.target.value }); }}
+                        >
+                            {activities.length === 0 ?
+                                (<MenuItem value={form.activityId}>....</MenuItem>)
+                                : activities.map((c, i) => (
+                                    <MenuItem key={i} value={c.id}>{c.name}</MenuItem>
+                                ))}
+                        </Select>
+                    </FormControl>
+                </div>
+            </DialogContent >
+            <DialogActions>
+                <Button onClick={add}>Add</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        backgroundColor: "#e5e5e5",
+        '& > *': {
+            borderBottom: 'unset',
+        },
+    },
+    buttons: {
+        display: 'flex',
+        justifyContent: 'space-around',
+        padding: '20px',
+    },
+    container: {
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '20px',
+        flexDirection: 'column'
+    },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+    },
+    selectEmpty: {
+        marginTop: theme.spacing(2),
+    },
+    setTime: {
+        display: 'flex',
+        justifyContent: 'space-around'
+    },
+    dirtyLog: {
+        backgroundColor: 'aqua'
+    }
+}))
 
 export default WorkHours

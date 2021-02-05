@@ -5,7 +5,7 @@ export const Theme = createMuiTheme({
 	palette: {
 		 background: {
 			  default: "#c9ced4",
-			  paper: "#e5e5e5"
+			  paper: "#f3f3f3"
 		 }
 	},
 	typography: {

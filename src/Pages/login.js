@@ -9,6 +9,12 @@ import Button from '@material-ui/core/Button';
 import { useForm } from 'react-hook-form';
 import { mainContext } from '../UserContext';
 import axios from "axios";
+import Header from "../components/header";
+import {Route, Switch} from "react-router-dom";
+import AgileBoard from "./AgileBoard";
+import Gant from "./Gant";
+import WorkHours from "./WorkHours";
+import Timer from "../Timer";
 
 const Login = () => {
     const classes = useStyles();
@@ -23,6 +29,7 @@ const Login = () => {
                 password: data.password
             }
         }).then( (res)=> {
+            console.log(res)
             setMainState({
                 ...mainState,
                 serverName:data.serverName,
@@ -31,6 +38,7 @@ const Login = () => {
                 user_id: res.data.user.id
             })
         }).catch( (error)=> {
+            console.log(error)
             setAuthEr(true)
         });
     };
@@ -80,6 +88,9 @@ const Login = () => {
         </form>
     )
 };
+
+
+
 
 const useStyles = makeStyles((theme) => ({
     root: {

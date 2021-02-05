@@ -24,6 +24,8 @@ const Header = (props) => {
 
     let open = mainState.SideBar;
     const setOpen = (open) =>{
+        console.log(mainState)
+
         setMainState({
             ...mainState,
             SideBar : open

@@ -7,7 +7,17 @@ import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Badge from "@material-ui/core/Badge";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import CloseIcon from '@material-ui/icons/Close';
 import { mainContext } from '../UserContext';
+import TaskTimer from "../Timer";
+const electron = window.require('electron');
+const remote = electron.remote
+const {BrowserWindow, dialog, Tray } = remote
+const app = remote.app
+var curWindow=null;
+app.whenReady().then(() => {
+	curWindow = remote.getCurrentWindow();
+})
 
 const HeaderItems = () => {
 
@@ -42,14 +52,15 @@ const HeaderItems = () => {
 			open={isMenuOpen}
 			onClose={handleMenuClose}
 		>
-			<MenuItem onClick={handleMenuClose} disabled>Profile</MenuItem>
+			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
 			<MenuItem onClick={()=>{handleMenuClose(); logout();}}>Logout</MenuItem>
 		</Menu>
 	);
 
 	return (
 		<div className={classes.sectionDesktop}>
-			<IconButton disabled aria-label="show 4 new notifications" color="inherit">
+			<TaskTimer/>
+			<IconButton aria-label="show 4 new notifications" color="inherit">
 				<Badge badgeContent={4} color="secondary">
 					<NotificationsIcon />
 				</Badge>
@@ -63,6 +74,16 @@ const HeaderItems = () => {
 				color="inherit"
 			>
 				<AccountCircle />
+			</IconButton>
+			<IconButton
+                onClick={() => {
+                    console.log("here")
+					curWindow.hide()
+                }
+                }
+				color="inherit"
+			>
+				<CloseIcon />
 			</IconButton>
 			{renderMenu}
 		</div>

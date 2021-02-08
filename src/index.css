@@ -39,3 +39,7 @@ code {
   -webkit-user-drag: none;
   -webkit-user-select: none;
 }
+
+.HeaderDraggable {
+  -webkit-app-region: drag;
+}

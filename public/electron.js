@@ -1,6 +1,6 @@
 const path = require("path");
 const electron = require('electron')
-const {app, BrowserWindow} = electron
+const {app, BrowserWindow, Tray } = electron
 const isDev = require("electron-is-dev");
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -26,7 +26,7 @@ function createWindow() {
         frame: false,
         webPreferences: {
             nodeIntegration: true,
-            enableRemoteModule:true,
+            enableRemoteModule: true,
             webSecurity: false
         }
     });
@@ -42,11 +42,18 @@ function createWindow() {
     if (isDev) {
         win.webContents.openDevTools({mode: "detach"});
     }
+
+    tray = new Tray('./favicon.ico')
+    tray.setToolTip('This is my application.')
+    tray.on("click",()=>{
+        win.show()
+    })
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+let tray = null
 app.whenReady().then(() => {
     createWindow();
 

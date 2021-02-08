@@ -13,6 +13,12 @@ export const mainContext = React.createContext({
 	inProgress: [],
 });
 
+export const timerContext = React.createContext({
+	start_of_time:null,
+	issue_id:null,
+	activity_id:null
+})
+
 export default mainContext
 
 const key = 'mainState'

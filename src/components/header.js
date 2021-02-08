@@ -47,7 +47,7 @@ const Header = (props) => {
                     >
                         <MenuIcon/>
                     </IconButton>
-                    <Typography className={classes.title} variant="h6" noWrap>
+                    <Typography className={"HeaderDraggable "+classes.title} variant="h6" noWrap>
                         Redmine Desktop
                     </Typography>
                     <div className={classes.grow}/>

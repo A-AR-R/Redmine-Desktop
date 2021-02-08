@@ -208,7 +208,7 @@ class AgileBoard extends Component {
         // 2875b029a6a87c9b3b7f04fd207a9b8386c78172
         axios({
             method: 'get',
-            url: 'http://185.8.172.29:8084/issues.json',
+            url: 'http://' + this.context.mainState.serverName + '/issues.json',
             params: {
                 assigned_to_id: this.context.mainState.user_id
             },

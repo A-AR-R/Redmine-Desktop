@@ -29,6 +29,12 @@ const WorkHours = () => {
     const [activities, setActivities] = useState([]);
 
     useEffect(() => {
+        if (!navigator.onLine) {
+            setIssueList(issueLogTimes);
+            setActivities(mainState.issueLogActivities)
+            return;
+        }
+
         let list;
         axios({
             method: 'get',
@@ -77,12 +83,10 @@ const WorkHours = () => {
                 }))
             }))
             for (let issue of newState) {
-                console.log(1, issue.logTime)
                 if (issueLogTimes.some(c => c.id === issue.id)) {
                     const dirtyLogs = issueLogTimes.filter(c => c.id === issue.id)[0].logTime.filter(c => c.id === -1);
                     issue.logTime = [...issue.logTime, ...dirtyLogs]
                 }
-                console.log(2, issue.logTime)
             }
             setIssueList(newState)
         })
@@ -103,14 +107,14 @@ const WorkHours = () => {
     }, [])
 
     const submit = () => {
+        if (!navigator.onLine) return;
         for (const issue of issueLogTimes) {
             const dirtyLogs = issue.logTime.filter(c => c.id === -1);
             for (const log of dirtyLogs) {
                 const formData = new FormData();
                 formData.append('issue_id', issue.id);
                 formData.append('user_id', mainState.user_id);
-                console.warn(log.activityId);
-                formData.append('activity_id', log.activityId);
+                formData.append('time_entry[activity_id]', log.activityId);
                 formData.append('time_entry[hours]', log.hours);
                 axios({
                     method: 'post',
@@ -129,13 +133,13 @@ const WorkHours = () => {
             }
             issue.logTime = issue.logTime.filter(c => c.id !== -1)
         }
-        setMainState({ ...mainState })
+        setMainState({ ...mainState, issueLogActivities: activities })
     }
     const reset = () => {
         issueLogTimes.forEach(c => {
             c.logTime = c.logTime.filter(c => c.id !== -1)
         });
-        setMainState({ ...mainState });
+        setMainState({ ...mainState, issueLogActivities: activities });
     }
 
     return (
@@ -160,7 +164,7 @@ const WorkHours = () => {
             </TableContainer>
             <div className={classes.buttons}>
                 <Button onClick={reset} >Reset</Button>
-                <Button onClick={submit} >Submit</Button>
+                <Button onClick={submit} disabled={!navigator.onLine} >Submit</Button>
             </div>
             <SetTimeModal modal={modal} setModal={setModal} activities={activities} issueList={issueList} state={{ mainState, setMainState }} />
 

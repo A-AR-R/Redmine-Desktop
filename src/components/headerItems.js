@@ -42,14 +42,14 @@ const HeaderItems = () => {
 			open={isMenuOpen}
 			onClose={handleMenuClose}
 		>
-			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+			<MenuItem onClick={handleMenuClose} disabled>Profile</MenuItem>
 			<MenuItem onClick={()=>{handleMenuClose(); logout();}}>Logout</MenuItem>
 		</Menu>
 	);
 
 	return (
 		<div className={classes.sectionDesktop}>
-			<IconButton aria-label="show 4 new notifications" color="inherit">
+			<IconButton disabled aria-label="show 4 new notifications" color="inherit">
 				<Badge badgeContent={4} color="secondary">
 					<NotificationsIcon />
 				</Badge>

@@ -24,10 +24,6 @@ const SideBar = () => {
 					<ListItemIcon><InboxIcon /> </ListItemIcon>
 					<ListItemText primary="Work Hours" />
 				</ListItem>
-				<ListItem button >
-					<ListItemIcon><InboxIcon /> </ListItemIcon>
-					<ListItemText primary="Tasks" secondary="" />
-				</ListItem>
 			</List>
 		</React.Fragment>
 	)

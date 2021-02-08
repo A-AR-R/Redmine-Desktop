@@ -18,7 +18,8 @@ const App = () => {
         agileBoard: {
             data: null
         },
-        issueLogTimes: []
+        issueLogTimes: [],
+        issueLogActivities: []
     });
     const [reload, setReload] = useState(true)
     const loadMainState = () => {
@@ -53,7 +54,7 @@ const App = () => {
                     <Route exact path="/WorkHours" component={WorkHours}/>
                 </Switch>
             </Header>
-            <Timer/>
+            {/* <Timer/> */}
         </div>
     );
 

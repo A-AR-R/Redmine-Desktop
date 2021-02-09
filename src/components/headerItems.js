@@ -10,6 +10,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import CloseIcon from '@material-ui/icons/Close';
 import { mainContext } from '../UserContext';
 import TaskTimer from "../Timer";
+import NotifyNewTask from "../NotifyNewTask";
 const electron = window.require('electron');
 const remote = electron.remote
 const {BrowserWindow, dialog, Tray } = remote
@@ -52,7 +53,6 @@ const HeaderItems = () => {
 			open={isMenuOpen}
 			onClose={handleMenuClose}
 		>
-			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
 			<MenuItem onClick={()=>{handleMenuClose(); logout();}}>Logout</MenuItem>
 		</Menu>
 	);
@@ -60,11 +60,7 @@ const HeaderItems = () => {
 	return (
 		<div className={classes.sectionDesktop}>
 			<TaskTimer/>
-			<IconButton aria-label="show 4 new notifications" color="inherit">
-				<Badge badgeContent={4} color="secondary">
-					<NotificationsIcon />
-				</Badge>
-			</IconButton>
+			<NotifyNewTask/>
 			<IconButton
 				edge="end"
 				aria-label="account of current user"

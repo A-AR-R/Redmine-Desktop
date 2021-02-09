@@ -47,11 +47,13 @@ const Header = (props) => {
                     >
                         <MenuIcon/>
                     </IconButton>
-                    <Typography className={"HeaderDraggable "+classes.title} variant="h6" noWrap>
-                        Redmine Desktop
-                    </Typography>
-                    <div className={classes.grow}/>
-                    <HeaderItems />
+                    <div style={{height:"100%",width:"80%",minHeight:"50px",padding:"10px 0"}} className={"HeaderDraggable"}>
+                        <Typography style={{width:"auto",float:"left"}} className={classes.title} variant="h6" noWrap>
+                            Redmine Desktop
+                        </Typography>
+                    </div>
+                    <div className={"HeaderDraggable "+classes.grow}/>
+                    <HeaderItems style={{width:"40%"}} />
                     
                 </Toolbar>
             </AppBar>

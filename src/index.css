@@ -43,3 +43,7 @@ code {
 .HeaderDraggable {
   -webkit-app-region: drag;
 }
+.height650 {
+  height: 650px !important;
+  overflow: auto;
+}

@@ -1,6 +1,7 @@
 import React, {Component, useContext, useEffect, useState} from 'react';
 import Drawer from 'react-drag-drawer'
 import Paper from "@material-ui/core/Paper";
+import Input from "@material-ui/core/Input";
 import clsx from "clsx";
 import {
     Dialog,
@@ -28,10 +29,16 @@ import TimerOffIcon from "@material-ui/icons/TimerOff";
 
 const electron = window.require('electron');
 const remote = electron.remote
-const {BrowserWindow, dialog, Menu} = remote
+const {BrowserWindow, dialog, Tray } = remote
+const app = remote.app
+var curWindow=null;
+app.whenReady().then(() => {
+    curWindow = remote.getCurrentWindow();
+})
 
-const active_period = 20 * 1
-const delay_for_prompt = 20 * 1
+
+const active_period = 15 * 1
+const delay_for_prompt = 15 * 1
 
 const PopUp = (props) => {
     const {mainState, setMainState} = React.useContext(mainContext);
@@ -130,129 +137,180 @@ const PopUp = (props) => {
             activityId: activities.length === 0 ? '' : activities[0].id,
             issueId: issueList.length === 0 ? '' : issueList[0].id
         })
-    }, [activities])
+    }, [activities,issueList])
 
     return (
-        <Dialog open={props.showPopup} onClose={() => {
-            let hours = props.handleClose();
-            let issue = issueList.filter(c => c.id === form.issueId)[0]
-            issue.logTime = [{
-                id: -1,
-                activityId: form.activityId,
-                activity: activities.filter(n => n.id === form.activityId)[0].name,
-                hours: Number(hours)
-            }, ...issue.logTime]
-            mainState.issueLogTimes = issueList
-            setMainState(mainState)
-        }}>
-            <DialogTitle> Add log time</DialogTitle>
-            <DialogContent>
-                <div className={classes.setTime}>
-                    <FormControl style={{width: "100%"}} variant="outlined" className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-outlined-label">Activity</InputLabel>
-                        <Select value={form.issueId} onChange={(event) => {
-                            setForm({...form, issueId: event.target.value});
-                        }}>
-                            {issueList.length === 0 ?
-                                (<MenuItem value={form.activityId}>....</MenuItem>)
-                                : issueList.map((c, i) => (
-                                    <MenuItem key={i} value={c.id}>{c.subject}</MenuItem>
-                                ))}
-                        </Select>
-                    </FormControl>
-                    <FormControl style={{width: "100%"}} variant="outlined" className={classes.formControl}>
-                        <Select value={form.activityId} onChange={(event) => {
-                            setForm({...form, activityId: event.target.value});
-                        }}>
-                            {activities.length === 0 ?
-                                (<MenuItem value={form.activityId}>....</MenuItem>)
-                                : activities.map((c, i) => (
-                                    <MenuItem key={i} value={c.id}>{c.name}</MenuItem>
-                                ))}
-                        </Select>
-                    </FormControl>
-                </div>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => {
-                    props.handleStart();
-                }}>Start Timer</Button>
-            </DialogActions>
+        <Dialog open={props.showPopup} onClose={props.handleClose}>
+            {
+                props.status ? <div>
+                    <DialogTitle> Stop Timer</DialogTitle>
+                    <DialogContent>
+                        <div className={classes.setTime}>
+                            <FormControl disabled style={{width: "100%"}} variant="outlined" className={classes.formControl}>
+                                <InputLabel id="demo-simple-select-outlined-label">Activity</InputLabel>
+                                <Select value={form.issueId} onChange={(event) => {
+                                    setForm({...form, issueId: event.target.value});
+                                }}>
+                                    {issueList.length === 0 ?
+                                        (<MenuItem value={form.activityId}>....</MenuItem>)
+                                        : issueList.map((c, i) => (
+                                            <MenuItem key={i} value={c.id}>{c.subject}</MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl disabled style={{width: "100%"}} variant="outlined" className={classes.formControl}>
+                                <Select value={form.activityId} onChange={(event) => {
+                                    setForm({...form, activityId: event.target.value});
+                                }}>
+                                    {activities.length === 0 ?
+                                        (<MenuItem value={form.activityId}>....</MenuItem>)
+                                        : activities.map((c, i) => (
+                                            <MenuItem key={i} value={c.id}>{c.name}</MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl disabled style={{width: "100%"}} variant="outlined" className={classes.formControl}>
+                                <Input value={props.time}></Input>
+                            </FormControl>
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                    <Button style={{margin: "0.5rem"}} onClick={() => {
+                        props.stopTimer();
+                        let issue = issueList.filter(c => c.id === form.issueId)[0]
+                        issue.logTime = [{
+                            id: -1,
+                            activityId: form.activityId,
+                            activity: activities.filter(n => n.id === form.activityId)[0].name,
+                            hours: Number(props.time)
+                        }, ...issue.logTime]
+                        props.handleClose();
+                        setMainState({...mainState,issueLogTimes:issueList})
+                    }}>Stop Timer</Button>
+                        <Button style={{margin: "0.5rem"}} onClick={() => {
+                            props.stopTimer();
+                            props.handleClose();
+                            setMainState({...mainState})
+                        }}>Remove Timer</Button>
+                        </DialogActions>
+                </div> : (
+                    <div>
+                        <DialogTitle> Add New Timer</DialogTitle>
+                        <DialogContent>
+                            <div className={classes.setTime}>
+                                <FormControl style={{width: "100%"}} variant="outlined" className={classes.formControl}>
+                                    <InputLabel id="demo-simple-select-outlined-label">Activity</InputLabel>
+                                    <Select value={form.issueId} onChange={(event) => {
+                                        setForm({...form, issueId: event.target.value});
+                                    }}>
+                                        {issueList.length === 0 ?
+                                            (<MenuItem value={form.activityId}>....</MenuItem>)
+                                            : issueList.map((c, i) => (
+                                                <MenuItem key={i} value={c.id}>{c.subject}</MenuItem>
+                                            ))}
+                                    </Select>
+                                </FormControl>
+                                <FormControl style={{width: "100%"}} variant="outlined" className={classes.formControl}>
+                                    <Select value={form.activityId} onChange={(event) => {
+                                        setForm({...form, activityId: event.target.value});
+                                    }}>
+                                        {activities.length === 0 ?
+                                            (<MenuItem value={form.activityId}>....</MenuItem>)
+                                            : activities.map((c, i) => (
+                                                <MenuItem key={i} value={c.id}>{c.name}</MenuItem>
+                                            ))}
+                                    </Select>
+                                </FormControl>
+                            </div>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => {
+                                props.handleStart();
+                            }}>Start Timer</Button>
+                        </DialogActions>
+                    </div>
+                )
+            }
+
         </Dialog>
     )
 }
 
 class TaskTimer extends Component {
-    static contextType = mainContext
-    is_idle = false
     is_active = false
-    start_of_time = null;
     active_time = 0;
     idle = 0
     state = {
-        showPopup: false
+        issueID: 0,
+        activityID: 0,
+        time: 0,
+        isOn: false,
+        start: 0,
+        showPopup: false,
+        last_prompt_time: new Date()
     };
 
     constructor(props) {
         super(props)
         this.state = {
-            issueID:0,
-            activityID:0,
+            issueID: 0,
+            activityID: 0,
             time: 0,
             isOn: false,
             start: 0,
             showPopup: false,
-            start_of_time: null,
             last_prompt_time: new Date()
         }
         this.startTimer = this.startTimer.bind(this)
         this.stopTimer = this.stopTimer.bind(this)
-        this.resetTimer = this.resetTimer.bind(this)
+        this.OpenStopTimer = this.OpenStopTimer.bind(this)
+        this.handleStart = this.handleStart.bind(this)
+        this.handleClose = this.handleClose.bind(this)
     }
 
     startTimer() {
         this.setState({
             ...this.state,
             isOn: true,
-            time: this.state.time,
-            start: Date.now() - this.state.time,
-            showPopup: false,
-            start_of_time: new Date(),
-            last_prompt_time: new Date()
+            start: new Date(),
+            showPopup: false
+        })
+    }
+
+    OpenStopTimer() {
+        this.setState({
+            ...this.state,
+            showPopup: true,
+            hour: ((new Date() - this.state.start)/(10*3600)).toFixed(5)
         })
     }
 
     stopTimer() {
-        var self=this;
-        this.setState({...this.state, start_of_time: null, showPopup: true, isOn: false, last_prompt_time: new Date()})
-    }
-
-    resetTimer() {
-        this.setState({time: 0, isOn: false})
-    }
-
-    isIdle() {
-        return this.is_idle
+        this.setState({
+            ...this.state,
+            showPopup: true,
+            isOn: false,
+            start: 0,
+            hour: ((new Date() - this.state.start)/(10*3600)).toFixed(5)
+        })
     }
 
     isActive() {
         return this.is_active
     }
 
-    getActiveTime() {
-        return this.start_of_time
-    }
+    handleStart() {
+        this.setState({
+            ...this.state, showPopup: false
+            , start: new Date()
+        });
 
+    }
 
     handleClose() {
-        this.setState({showPopup: false});
-        return 12;
-    }
-
-    handleStart() {
-        console.log("here")
-        this.setState({...this.state, showPopup: false, start_of_time: new Date()});
-
+        this.setState({
+            ...this.state, showPopup: false,
+        });
     }
 
     componentDidMount() {
@@ -262,24 +320,27 @@ class TaskTimer extends Component {
 
         // console.log(this.context.mainState);
         //
-        if (this.state.start_of_time) {
-            this.setState({...this.state, start_of_time: null})
+        if (this.state.start) {
+            this.setState({...this.state, start: 0})
         }
 
         setInterval(function () {
-            console.log(new Date() - self.state.start_of_time)
             self.idle = remote.powerMonitor.getSystemIdleTime()
-            if (self.idle === 0) {
+            if (self.idle < 10) {
                 self.active_time += 1
-            } else {
+            } else if(self.idle>10){
                 self.active_time = 0
             }
-            if (self.active_time > active_period && !self.state.start_of_time && new Date() - self.state.last_prompt_time > delay_for_prompt) {
+            if (self.active_time > active_period && self.state.start===0 && (new Date() - self.state.last_prompt_time)/1000 >= delay_for_prompt) {
                 self.is_active = true
                 self.is_idle = false
                 self.setState({
-                    showPopup: true
+                    ...self.state,
+                    showPopup: true,
+                    last_prompt_time:new Date()
                 })
+                curWindow.show()
+                curWindow.setVisibleOnAllWorkspaces(true)
             }
         }, 1000)
     };
@@ -288,12 +349,12 @@ class TaskTimer extends Component {
         return (
             <div>
                 {
-                    this.state.start_of_time ? (<IconButton
+                    this.state.isOn ? (<IconButton
                         edge="end"
                         aria-label="account of current user"
                         aria-haspopup="true"
                         color="inherit"
-                        onClick={this.stopTimer}>
+                        onClick={this.OpenStopTimer}>
                         <TimerOffIcon/>
                     </IconButton>) : (<IconButton
                         edge="end"
@@ -309,9 +370,10 @@ class TaskTimer extends Component {
 
                 }
 
-                <PopUp handleStart={this.startTimer} handleClose={this.handleClose} showPopup={this.state.showPopup}
-                       status={'active'}
-                       time={'10 minutes'}/>
+                <PopUp handleStart={this.startTimer} handleClose={this.handleClose} stopTimer={this.stopTimer}
+                       showPopup={this.state.showPopup}
+                       status={this.state.isOn}
+                       time={this.state.hour}/>
             </div>
         )
     }

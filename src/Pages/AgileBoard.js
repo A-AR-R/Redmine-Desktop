@@ -74,9 +74,9 @@ const MyCard = props => {
         <div style={{border: '1px solid', minWidth: 'unset'}}>
             <header
                 style={{
-                    borderBottom: '1px solid #eee', height: "2.5rem",
+                    borderBottom: '1px solid #eee', height: "3rem",
                     display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-                    background: props.cardColor
+                    background: props.cardColor, padding:"5px"
                 }}
             >
                 <div style={{fontSize: 14, fontWeight: 'bold'}}>{props.title}</div>
@@ -244,7 +244,7 @@ class AgileBoard extends Component {
     render() {
         const {data} = this.state;
         return (
-            <div className="height100">
+            <div className="height650 ">
                 {!isEmpty(data) ?
                     <Board style={{backgroundColor: 'whitesmoke', textAlign: 'left', width: '100%'}}
                            className="height100" data={data}

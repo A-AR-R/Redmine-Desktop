@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Redmine Desktop APP",
   "author": "amir",
-  "main": "public/electron.js",
+  "main": "src/electron.js",
   "homepage": "./",
   "license": "GPL v3",
   "private": true,
@@ -18,9 +18,11 @@
     "clsx": "^1.1.1",
     "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
+    "eslint": "^6.6.0",
     "lodash": "^4.17.20",
     "material-ui-rte": "^1.2.4",
     "mui-rte": "^1.26.2",
+    "nf": "0.0.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-drag-drawer": "^3.3.4",
@@ -36,14 +38,16 @@
     "showdown": "^1.9.1"
   },
   "scripts": {
-    "dev": "concurrently -k \"npm start\" \"npm:electron\"",
-    "electron": "wait-on tcp:3000 && electron .",
-    "start": "react-scripts start",
+    "start": "nf start -p 3000",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-start": "node src/start-react",
+    "react-start": "react-scripts start",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "postinstall": "install-app-deps"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -62,6 +66,15 @@
   },
   "build": {
     "appId": "redmine-desktop",
+    "files": [
+      "package.json",
+      "./src/**/*",
+      "./src/electron.js",
+      "./src/start-react.js"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
     "win": {
       "target": [
         "nsis",
@@ -72,21 +85,15 @@
       "artifactName": "redmine-desktop-portable"
     },
     "extraResources": [
-      {
-        "from": "node_modules/regedit/vbs",
-        "to": "regedit/vbs",
-        "filter": [
-          "**/*"
-        ]
-      },
       "pd/**"
     ]
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
-    "electron-builder": "^22.9.1",
     "electron": "^9.1.1",
+    "electron-builder": "^22.9.1",
     "electron-devtools-installer": "^3.1.1",
+    "foreman": "^3.0.1",
     "wait-on": "^5.1.0"
   }
 }

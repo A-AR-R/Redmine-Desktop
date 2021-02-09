@@ -31,19 +31,7 @@ const App = () => {
         }
     }
 
-    const loadTimer = () => {
-        let timer = new Timer()
-        setInterval(function () {
-            if (timer.isActive()) {
-                // console.log("active:" + timer.getActiveTime())
-            }
-            else if (timer.isIdle()) {
-                // console.log("idle:" + timer.getActiveTime())
-            }
-        }, 1000)
-    }
     React.useEffect(loadMainState, [])
-    React.useEffect(loadTimer, [])
 
     const Main = () => (
         <div>
@@ -54,7 +42,6 @@ const App = () => {
                     <Route exact path="/WorkHours" component={WorkHours}/>
                 </Switch>
             </Header>
-            {/* <Timer/> */}
         </div>
     );
 

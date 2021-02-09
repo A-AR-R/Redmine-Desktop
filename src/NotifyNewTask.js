@@ -43,12 +43,12 @@ app.whenReady().then(() => {
 
 class NotifyNewTask extends Component {
     static contextType = mainContext
-    number_of_tasks = 2
+    number_of_tasks = 1
+    first_time = true
 
     constructor(props) {
         super(props)
         this.state = {
-            number_of_tasks: 1,
             changed: false
         }
         this.update_number_of_tasks = this.update_number_of_tasks.bind(this)
@@ -71,11 +71,15 @@ class NotifyNewTask extends Component {
                 'Access-Control-Allow-Origin': '*'
             }
         }).then(res => {
-                if (res.data.issues.length !== self.state.number_of_tasks) {
-                    self.setState({...self.state, number_of_tasks: res.data.issues.length})
+                if (self.first_time) {
+                    self.number_of_tasks = res.data.issues.length
+                    self.first_time = false
+                }
+                if (self.number_of_tasks !== res.data.issues.length) {
+                    self.number_of_tasks = res.data.issues.length
                     const notification = {
                         title: 'TASKS',
-                        body: "You have " + self.state.number_of_tasks + " tasks"
+                        body: "You have " + self.number_of_tasks + " tasks"
                     }
                     new Notification(notification).show()
                     self.setState({...self.state, changed: true})
@@ -87,13 +91,8 @@ class NotifyNewTask extends Component {
     componentDidMount() {
         var self = this;
 
-        if (this.state.number_of_tasks === 0) {
-            this.setState({...this.state, start: 0})
-        }
-
         setInterval(function () {
             self.update_number_of_tasks()
-
         }, 5000)
     };
 

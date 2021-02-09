@@ -104,12 +104,10 @@ const PopUp = (props) => {
                 }))
             }))
             for (let issue of newState) {
-                console.log(1, issue.logTime)
                 if (issueLogTimes.some(c => c.id === issue.id)) {
                     const dirtyLogs = issueLogTimes.filter(c => c.id === issue.id)[0].logTime.filter(c => c.id === -1);
                     issue.logTime = [...issue.logTime, ...dirtyLogs]
                 }
-                console.log(2, issue.logTime)
             }
             setIssueList(newState)
         })

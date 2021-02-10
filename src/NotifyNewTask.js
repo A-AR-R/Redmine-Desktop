@@ -82,7 +82,6 @@ class NotifyNewTask extends Component {
                         body: "You have " + self.number_of_tasks + " tasks"
                     }
                     new Notification(notification).show()
-                    self.setState({...self.state, changed: true})
                 }
             }
         )

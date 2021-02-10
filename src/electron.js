@@ -1,6 +1,6 @@
 const path = require("path");
 const electron = require('electron')
-const {app, BrowserWindow, Tray } = electron
+const {app, BrowserWindow, Menu, Tray } = electron
 const isDev = require("electron-is-dev");
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -16,7 +16,7 @@ if (isDev) {
 if (require("electron-squirrel-startup")) {
     app.quit();
 }
-
+let tray = null
 function createWindow() {
     // Create the browser window.
 
@@ -47,17 +47,23 @@ function createWindow() {
         win.webContents.openDevTools({mode: "detach"});
     }
 
-    tray = new Tray('./favicon.ico')
-    tray.setToolTip('This is my application.')
-    tray.on("click",()=>{
-        win.show()
-    })
+    tray = new Tray('./src/favicon.ico')
+    tray.setToolTip('REDMINE Desktop Application.')
+    const contextMenu = Menu.buildFromTemplate([
+        { label: 'Show App', click:  function(){
+                win.show();
+            } },
+        { label: 'Quit', click:  function(){
+                app.isQuiting = true;
+                app.quit();
+            } }
+    ]);
+    tray.setContextMenu(contextMenu)
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-let tray = null
 app.whenReady().then(() => {
     createWindow();
 

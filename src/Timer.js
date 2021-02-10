@@ -329,7 +329,13 @@ class TaskTimer extends Component {
             } else if(self.idle>10){
                 self.active_time = 0
             }
-            if (self.active_time > active_period && self.state.start===0 && (new Date() - self.state.last_prompt_time)/1000 >= delay_for_prompt) {
+            if(self.state.showPopup){
+                self.setState({
+                    ...self.state,
+                    last_prompt_time:new Date()
+                })
+            }
+            if (!self.state.showPopup && self.active_time > active_period && self.state.start===0 && ((new Date() - self.state.last_prompt_time)/1000) >= delay_for_prompt) {
                 self.is_active = true
                 self.is_idle = false
                 self.setState({
